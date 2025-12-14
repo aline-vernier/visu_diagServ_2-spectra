@@ -112,6 +112,9 @@ class diagServer(threading.Thread):
         keywords are:
             '__GET__': transmit the dictionnay
             '__STOP__': stop the server
+            '__NAME'__: transmit the name attribute
+            '__PING__': answer 'online'
+            '__TYPE__': answer  'diagnostics'
         '''
         print(f"[diagServer {self.name}] Running on {self.address}")
 
@@ -132,6 +135,15 @@ class diagServer(threading.Thread):
                     elif message == "__GET__":
                         response = json.dumps(self.data)
                         self.socket.send_string(response)
+                    
+                    elif message == "__NAME__":
+                        self.socket.send_string(self.name)
+                    
+                    elif message == "__TYPE__":
+                        self.socket.send_string("diagnostics")
+                    
+                    elif message == "__PING__":
+                        self.socket.send_string("online")
 
                 else:
                     time.sleep(0.01) # wait 10 ms
