@@ -1,10 +1,10 @@
 import numpy as np
-from matplotlib import pyplot as plt
 from PIL import Image
 import time as t
 import pyqtgraph as pg
 from pyqtgraph import ColorBarItem
 from scipy.interpolate import interp1d
+from os import sep
 
 VIRIDIS = pg.colormap.get('viridis')
 
@@ -79,7 +79,7 @@ class DeconvolvedSpectrum:
             x_max = x_min + self._image_dimensions[1]
 
         else:
-            raise ValueError('referencing mode should be either \"zero\" or \"refpoint\"')
+            raise ValueError("referencing mode should be either 'zero' or 'refpoint'")
 
         x_lanex = np.linspace(x_min, x_max, self._image_dimensions[1]) / self.pixel_per_mm
         # Filter axis with Yamask (Filter-out undefined s-values)
@@ -119,15 +119,6 @@ class DeconvolvedSpectrum:
         background = np.average(self.image[background_cursors[0]:background_cursors[1], :])
         data = data - background
         self.integrated_spectrum = np.multiply(np.sum(data, axis=0), abs(self.dsdE))
-        #print(f'energy min:{self.energy[0]}, energy max: {self.energy[-1]}')
-        #print(f'dsde min:{self.dsdE[0]}, dsde max{self.dsdE[-1]}')
-
-        #spectrum = np.loadtxt("MATLAB_Output/magnet0.4T_Soectrum_isat4.9cm_26bar_gdd25850_HeAr_0002-sp3.txt").T
-
-        #plt.plot(spectrum[0], spectrum[1] * 1.6e-7)
-        #plt.plot(self.energy, self.integrated_spectrum * 4.33e-6*self.pixel_per_mm)
-        #plt.xlim(4, 80)
-        #plt.show()
 
 class SpectrumGraph:
     def __init__(self, _spectrum_image: DeconvolvedSpectrum):
@@ -173,15 +164,16 @@ if __name__ == "__main__":
     """
     show = False
     # Load image and calibration
-    spImage = spectrum_image(im_path="./calib/magnet0.4T_Soectrum_isat4.9cm_26bar_gdd25850_HeAr_0002.TIFF",
+    spImage = spectrum_image(im_path=f'..{sep}data{sep}magnet0.4T_Soectrum_isat4.9cm_26bar_gdd25850_HeAr_0002.TIFF',
                              revert=True)
-    calibration_data = CalibrationData(cal_path="./calib/dsdE_Small_LHC.txt")
+    calibration_data = CalibrationData(cal_path=f'..{sep}data{sep}dsdE_Small_LHC.txt')
 
     # Deconvolve data
+    # "refpoint" method
     #deconvolved_spectrum = DeconvolvedSpectrum(spImage, calibration_data,0.5,
     #                                           20.408, 0.1,
     #                                           "refpoint", (47.855, 10))
-
+    # "zero" method
     deconvolved_spectrum = DeconvolvedSpectrum(spImage, calibration_data, 0.5,
                                                20.408, 0.1,
                                                "zero", (1953, 635))
