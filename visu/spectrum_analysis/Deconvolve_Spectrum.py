@@ -49,9 +49,8 @@ class DeconvolvedSpectrum:
     Public attributes:
 
     """
-    def __init__(self, image: np.ndarray, calibration: CalibrationData,
-                 spacing: float, pixel_per_mm: float, mrad_per_pix: float,
-                 ref_mode: str, ref_point: tuple):
+    def __init__(self, image: np.ndarray, calibration: CalibrationData, spacing: float, pixel_per_mm: float,
+                 mrad_per_pix: float, ref_mode: str, ref_point: tuple, pC_per_count: float):
 
         self.pixel_per_mm = pixel_per_mm
         self.mrad_per_pix = mrad_per_pix
@@ -59,6 +58,7 @@ class DeconvolvedSpectrum:
         self.ref_point = ref_point
         self.calibration = calibration
         self.spacing = spacing
+        self.pC_per_count = pC_per_count
         self._image_dimensions = image.shape
 
         self.set_axes()
@@ -118,7 +118,8 @@ class DeconvolvedSpectrum:
         data = self.image[data_cursors[0]:data_cursors[1], :]
         background = np.average(self.image[background_cursors[0]:background_cursors[1], :])
         data = data - background
-        self.integrated_spectrum = np.multiply(np.sum(data, axis=0), abs(self.dsdE))
+        self.integrated_spectrum = (self.pC_per_count*self.pixel_per_mm*
+                                    np.multiply(np.sum(data, axis=0), abs(self.dsdE)))
 
 class SpectrumGraph:
     def __init__(self, _spectrum_image: DeconvolvedSpectrum):
@@ -174,9 +175,8 @@ if __name__ == "__main__":
     #                                           20.408, 0.1,
     #                                           "refpoint", (47.855, 10))
     # "zero" method
-    deconvolved_spectrum = DeconvolvedSpectrum(spImage, calibration_data, 0.5,
-                                               20.408, 0.1,
-                                               "zero", (1953, 635))
+    deconvolved_spectrum = DeconvolvedSpectrum(spImage, calibration_data, 0.5, 20.408, 0.1, "zero", (1953, 635),
+                                               4.33e-6)
     t0 = t.time()
     deconvolved_spectrum.deconvolve_data(spImage)
     print(f'Deconvolution time: {t.time()-t0} s')

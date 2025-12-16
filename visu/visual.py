@@ -1393,8 +1393,8 @@ class SEE(QMainWindow):
             # print('emit new crop image')
             self.signalCrop.emit(self.cropImg)
         if self.spectro is True: 
-            if self.winSpectro.isWinOpen is True:
-                self.signalSpectro.emit(self.data)
+            #if self.winSpectro.isWinOpen is True:
+            self.signalSpectro.emit(self.data)
 
         self.signalDisplayed.emit(True)
         
@@ -1820,7 +1820,7 @@ class SEE(QMainWindow):
         data = {
             "state": "running", 
             "shotNumber":0, 
-            "data":np.random.rand(), 
+            "data":self.winSpectro.data_dict,
             "name":"spectrum"
         }
         self.serv.setData(data)
