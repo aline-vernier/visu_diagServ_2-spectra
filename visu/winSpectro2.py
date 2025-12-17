@@ -146,11 +146,13 @@ class WINSPECTRO(QMainWindow):
         cutoff_energies = QLabel('Cutoff energies (MeV)')
         self.min_cutoff_energy_control = QDoubleSpinBox()  # for the value
         self.min_cutoff_energy_control.setValue(10)
+        self.min_cutoff_energy = self.min_cutoff_energy_control.value()
         self.min_cutoff_energy_control.setMinimum(0)
         self.min_cutoff_energy_control.setSingleStep(1)
 
         self.max_cutoff_energy_control = QDoubleSpinBox()  # for the value
         self.max_cutoff_energy_control.setValue(200)
+        self.max_cutoff_energy = self.max_cutoff_energy_control.value()
         self.max_cutoff_energy_control.setMinimum(50)
         self.max_cutoff_energy_control.setSingleStep(10)
 
@@ -270,9 +272,9 @@ class WINSPECTRO(QMainWindow):
         # temp_dataArray : [data from parent, shot number] ; added data from parent in case we want to compute but
         # not display!
         # Only process data without noise! Maybe make function that automatically removes noise?
-        self.spectro_data_dict = Spectrum_Features.build_dict(self.deconvolved_spectrum.energy[50:150],
-                                                      self.deconvolved_spectrum.integrated_spectrum[50:150],
-                                                      temp_dataArray[1])
+        self.spectro_data_dict = Spectrum_Features.build_dict(self.deconvolved_spectrum.energy,
+                                                              self.deconvolved_spectrum.integrated_spectrum,
+                                                              temp_dataArray[1], energy_bounds=[15, 100])
         self.signalSpectroDict.emit(self.spectro_data_dict)
 
 
