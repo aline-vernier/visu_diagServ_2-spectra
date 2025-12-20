@@ -219,6 +219,10 @@ class WINSPECTRO(QMainWindow):
         self.brightnessSlider.setValue(int(self.brightnessBox.value()))
         self.updateBrightness(self.brightnessBox.value())
 
+    #####################################################################
+    #                  Setup calibration for deconvolution
+    #####################################################################
+
     def load_calib(self):
         # Load calibration for spectrum deconvolution
         p = pathlib.Path(__file__)
@@ -248,6 +252,9 @@ class WINSPECTRO(QMainWindow):
         self.dnde_image.setLabel('bottom', 'Energy')
         self.dnde_image.setLabel('left', 'dN/dE (pC/MeV)')
 
+    #####################################################################
+    #                       Setup DiagServ signal
+    #####################################################################
 
     def signal_setup(self):
 
@@ -256,6 +263,9 @@ class WINSPECTRO(QMainWindow):
             self.parent.signalSpectro.connect(self.Display)
             self.parent.signalSpectroList.connect(self.spectro_dict)
 
+    #####################################################################
+    #       Display and generate data for DiagServ (dictionary)
+    #####################################################################
     def Display(self, data):
 
         # Deconvolve and display 2D data
@@ -268,14 +278,12 @@ class WINSPECTRO(QMainWindow):
         self.updateBrightness(self.brightnessBox.value())
 
     def spectro_dict(self, temp_dataArray):
-        # Creation of dictionary to pass to diagServ ; to be integrated to another function, with another signal
-        # temp_dataArray : [data from parent, shot number] ; added data from parent in case we want to compute but
-        # not display!
-        # Only process data without noise! Maybe make function that automatically removes noise?
+        # Creation of dictionary to pass to diagServ ; cut energy from interface to remove noise
         self.spectro_data_dict = Spectrum_Features.build_dict(self.deconvolved_spectrum.energy,
                                                               self.deconvolved_spectrum.integrated_spectrum,
-                                                              temp_dataArray[1], energy_bounds=[15, 100])
-        self.signalSpectroDict.emit(self.spectro_data_dict)
+                                                              temp_dataArray[1],
+                                                              energy_bounds=[self.min_cutoff_energy, self.max_cutoff_energy])
+        self.signalSpectroDict.emit(self.spectro_data_dict) # Signal for DiagServ
 
 
 if __name__ == "__main__":
